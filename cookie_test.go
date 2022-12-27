@@ -1,6 +1,7 @@
 package fasthttp
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 	"time"
@@ -411,4 +412,18 @@ func testAppendRequestCookieBytes(t *testing.T, s, expectedS string) {
 	if result != expectedS {
 		t.Fatalf("Unexpected result %q. Expecting %q for cookie %q", result, expectedS, s)
 	}
+}
+
+func FuzzCookieRoundTrip(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		c := AcquireCookie()
+		defer ReleaseCookie(c)
+
+		if err := c.ParseBytes(data); err != nil {
+			return
+		}
+
+		var w bytes.Buffer
+		_, _ = c.WriteTo(&w)
+	})
 }

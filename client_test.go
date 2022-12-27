@@ -3031,3 +3031,31 @@ func Test_AddMissingPort(t *testing.T) {
 		})
 	}
 }
+
+func FuzzRequestRoundTrip(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		req := AcquireRequest()
+		defer ReleaseRequest(req)
+
+		if err := req.ReadLimitBody(bufio.NewReader(bytes.NewReader(data)), 1024*1024); err != nil {
+			return
+		}
+
+		var w bytes.Buffer
+		_, _ = req.WriteTo(&w)
+	})
+}
+
+func FuzzResponseRoundTrip(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		resp := AcquireResponse()
+		defer ReleaseResponse(resp)
+
+		if err := resp.ReadLimitBody(bufio.NewReader(bytes.NewReader(data)), 1024*1024); err != nil {
+			return
+		}
+
+		var w bytes.Buffer
+		_, _ = resp.WriteTo(&w)
+	})
+}

@@ -484,3 +484,15 @@ func TestNoOverwriteInput(t *testing.T) {
 		t.Errorf("%q", u.String())
 	}
 }
+
+func FuzzURIRoundTrip(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		u := AcquireURI()
+		defer ReleaseURI(u)
+
+		u.UpdateBytes(data)
+
+		var w bytes.Buffer
+		_, _ = u.WriteTo(&w)
+	})
+}
